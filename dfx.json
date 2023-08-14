@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "canisters": {
+    "icp_rust_message_board_contract_backend": {
+      "type": "rust",
+      "package": "icp_rust_message_board_contract_backend",
+      "candid": "src/icp_rust_message_board_contract_backend/icp_rust_message_board_contract_backend.did"
+    }
+  },
+  "output_env_file": ".env"
+}

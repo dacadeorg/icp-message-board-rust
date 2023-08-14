@@ -1,0 +1,4 @@
+[workspace]
+members = [
+    "src/icp_rust_message_board_contract_backend",
+]
