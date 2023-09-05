@@ -1,3 +1,4 @@
+type Error = variant { NotFound : record { msg : text } };
 type Message = record {
   id : nat64;
   title : text;
@@ -11,7 +12,7 @@ type MessagePayload = record {
   body : text;
   attachment_url : text;
 };
-type Result = variant { Ok : Message; Err : text };
+type Result = variant { Ok : Message; Err : Error };
 service : {
   add_message : (MessagePayload) -> (opt Message);
   delete_message : (nat64) -> (Result);

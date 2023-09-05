@@ -24,9 +24,6 @@ update the `dependencies` block in `/src/{canister_name}/Cargo.toml`:
 candid = "0.9.3"
 ic-cdk = "0.10.0"
 serde = { version = "1", features = ["derive"] }
-serde_cbor = "0.10"
-ic-cdk-macros = "0.7.1"
-uuid = { version = "1.4.1", features = ["v4", "serde", "wasm-bindgen"] }
 ```
 
 ## did autogenerate
