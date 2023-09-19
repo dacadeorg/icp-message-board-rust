@@ -2,10 +2,12 @@
 extern crate serde;
 use candid::{Decode, Encode};
 use ic_cdk::api::time;
-use ic_stable_structures::{
-    BTreeMap as StableBTreeMap, BoundedStorable, DefaultMemoryImpl, Storable,
-};
-use std::{borrow::Cow, cell::RefCell, ops::Add};
+use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
+use ic_stable_structures::{BoundedStorable, Cell, DefaultMemoryImpl, StableBTreeMap, Storable};
+use std::{borrow::Cow, cell::RefCell};
+
+type Memory = VirtualMemory<DefaultMemoryImpl>;
+type IdCell = Cell<u64, Memory>;
 
 #[derive(candid::CandidType, Clone, Serialize, Deserialize, Default)]
 struct Message {
@@ -35,10 +37,19 @@ impl BoundedStorable for Message {
 }
 
 thread_local! {
-  static ID_COUNTER: RefCell<u64> = RefCell::new(0);
+    static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> = RefCell::new(
+        MemoryManager::init(DefaultMemoryImpl::default())
+    );
 
-  static STORAGE: RefCell<StableBTreeMap<u64, Message, DefaultMemoryImpl>> =
-    RefCell::new(StableBTreeMap::init(DefaultMemoryImpl::default()));
+    static ID_COUNTER: RefCell<IdCell> = RefCell::new(
+        IdCell::init(MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(0))), 0)
+            .expect("Cannot create a counter")
+    );
+
+    static STORAGE: RefCell<StableBTreeMap<u64, Message, Memory>> =
+        RefCell::new(StableBTreeMap::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(1)))
+    ));
 }
 
 #[derive(candid::CandidType, Serialize, Deserialize, Default)]
@@ -60,7 +71,12 @@ fn get_message(id: u64) -> Result<Message, Error> {
 
 #[ic_cdk::update]
 fn add_message(message: MessagePayload) -> Option<Message> {
-    let id = ID_COUNTER.with(|counter: &RefCell<u64>| counter.borrow_mut().add(1));
+    let id = ID_COUNTER
+        .with(|counter| {
+            let current_value = *counter.borrow().get();
+            counter.borrow_mut().set(current_value + 1)
+        })
+        .expect("cannot increment id counter");
     let message = Message {
         id,
         title: message.title,
