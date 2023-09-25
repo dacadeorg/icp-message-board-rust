@@ -64,7 +64,7 @@ fn get_message(id: u64) -> Result<Message, Error> {
     match _get_message(&id) {
         Some(message) => Ok(message),
         None => Err(Error::NotFound {
-            msg: format!("a message with id={} not found", id).to_owned(),
+            msg: format!("a message with id={} not found", id),
         }),
     }
 }
@@ -104,8 +104,7 @@ fn update_message(id: u64, payload: MessagePayload) -> Result<Message, Error> {
             msg: format!(
                 "couldn't update a message with id={}. message not found",
                 id
-            )
-            .to_owned(),
+            ),
         }),
     }
 }
@@ -123,8 +122,7 @@ fn delete_message(id: u64) -> Result<Message, Error> {
             msg: format!(
                 "couldn't delete a message with id={}. message not found.",
                 id
-            )
-            .to_owned(),
+            ),
         }),
     }
 }
