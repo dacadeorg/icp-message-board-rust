@@ -1,19 +1,32 @@
 # icp_rust_message_board_contract
 
 ### Requirements
+* rustc 1.64 or higher
+```bash
+$ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
+$ source "$HOME/.cargo/env"
 ```
-rust 1.64 or higher
-wasmtime (https://docs.wasmtime.dev/cli-install.html)
+* rust wasm32-unknown-unknown target
+```bash
+$ rustup target add wasm32-unknown-unknown
+```
+* candid-extractor
+```bash
+$ cargo install candid-extractor
+```
+* install `dfx`
+```bash
+$ DFX_VERSION=0.15.0 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+$ echo 'export PATH="$PATH:$HOME/bin"' >> "$HOME/.bashrc"
+$ source ~/.bashrc
 ```
 
 If you want to start working on your project right away, you might want to try the following commands:
 
 ```bash
-DFX_VERSION=0.14.3 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
-echo 'export PATH="$PATH:$HOME/bin"' >> "$HOME/.bashrc"
-cd icp_rust_message_board_contract/
-dfx help
-dfx canister --help
+$ cd icp_rust_message_board_contract/
+$ dfx help
+$ dfx canister --help
 ```
 
 ## Update dependencies
@@ -21,9 +34,11 @@ dfx canister --help
 update the `dependencies` block in `/src/{canister_name}/Cargo.toml`:
 ```
 [dependencies]
-candid = "0.9.3"
-ic-cdk = "0.10.0"
+candid = "0.9.9"
+ic-cdk = "0.11.1"
 serde = { version = "1", features = ["derive"] }
+serde_json = "1.0"
+ic-stable-structures = { git = "https://github.com/lwshang/stable-structures.git", branch = "lwshang/update_cdk"}
 ```
 
 ## did autogenerate
@@ -62,8 +77,8 @@ If you want to test your project locally, you can use the following commands:
 
 ```bash
 # Starts the replica, running in the background
-dfx start --background
+$ dfx start --background
 
 # Deploys your canisters to the replica and generates your candid interface
-dfx deploy
+$ dfx deploy
 ```
