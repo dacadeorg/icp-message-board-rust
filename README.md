@@ -19,6 +19,7 @@ $ cargo install candid-extractor
 $ DFX_VERSION=0.15.0 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
 $ echo 'export PATH="$PATH:$HOME/bin"' >> "$HOME/.bashrc"
 $ source ~/.bashrc
+$ dfx start --background
 ```
 
 If you want to start working on your project right away, you might want to try the following commands:
