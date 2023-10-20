@@ -1,7 +1,8 @@
 #[macro_use]
 extern crate serde;
-use candid::{Decode, Encode};
+use candid::{Decode, Encode, CandidType};
 use ic_cdk::api::time;
+use ic_cdk::{update, query};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::{BoundedStorable, Cell, DefaultMemoryImpl, StableBTreeMap, Storable};
 use std::{borrow::Cow, cell::RefCell};
@@ -9,7 +10,7 @@ use std::{borrow::Cow, cell::RefCell};
 type Memory = VirtualMemory<DefaultMemoryImpl>;
 type IdCell = Cell<u64, Memory>;
 
-#[derive(candid::CandidType, Clone, Serialize, Deserialize, Default)]
+#[derive(CandidType, Clone, Serialize, Deserialize, Default)]
 struct Message {
     id: u64,
     title: String,
@@ -21,11 +22,11 @@ struct Message {
 
 // a trait that must be implemented for a struct that is stored in a stable struct
 impl Storable for Message {
-    fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
+    fn to_bytes(&self) -> Cow<[u8]> {
         Cow::Owned(Encode!(self).unwrap())
     }
 
-    fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
         Decode!(bytes.as_ref(), Self).unwrap()
     }
 }
@@ -52,14 +53,14 @@ thread_local! {
     ));
 }
 
-#[derive(candid::CandidType, Serialize, Deserialize, Default)]
+#[derive(CandidType, Serialize, Deserialize, Default)]
 struct MessagePayload {
     title: String,
     body: String,
     attachment_url: String,
 }
 
-#[ic_cdk::query]
+#[query]
 fn get_message(id: u64) -> Result<Message, Error> {
     match _get_message(&id) {
         Some(message) => Ok(message),
@@ -69,7 +70,7 @@ fn get_message(id: u64) -> Result<Message, Error> {
     }
 }
 
-#[ic_cdk::update]
+#[update]
 fn add_message(message: MessagePayload) -> Option<Message> {
     let id = ID_COUNTER
         .with(|counter| {
@@ -89,7 +90,7 @@ fn add_message(message: MessagePayload) -> Option<Message> {
     Some(message)
 }
 
-#[ic_cdk::update]
+#[update]
 fn update_message(id: u64, payload: MessagePayload) -> Result<Message, Error> {
     match STORAGE.with(|service| service.borrow().get(&id)) {
         Some(mut message) => {
@@ -127,7 +128,7 @@ fn delete_message(id: u64) -> Result<Message, Error> {
     }
 }
 
-#[derive(candid::CandidType, Deserialize, Serialize)]
+#[derive(CandidType, Deserialize, Serialize)]
 enum Error {
     NotFound { msg: String },
 }
